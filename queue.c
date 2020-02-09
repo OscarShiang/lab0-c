@@ -61,6 +61,7 @@ bool q_insert_head(queue_t *q, char *s)
     // connect the link
     if (!q) {
         q = q_new();
+        q->tail = newh;
     }
     newh->next = q->head;
     q->head = newh;
