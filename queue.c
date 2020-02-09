@@ -23,11 +23,11 @@ void q_free(queue_t *q)
 {
     /* TODO: How about freeing the list elements and the strings? */
     /* Free queue structure */
-    if (q != NULL)
-        free(q);
+    if (q == NULL)
+        return;
 
     if (q->head != NULL) {
-        list_ele_t *pos = p->head;
+        list_ele_t *pos = q->head;
         list_ele_t *next;
         while (pos != NULL) {
             if (pos->value != NULL) {
@@ -37,8 +37,8 @@ void q_free(queue_t *q)
             free(pos);
             pos = next;
         }
-        free(q);
     }
+    free(q);
 }
 
 /*
