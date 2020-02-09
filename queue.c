@@ -52,6 +52,9 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    if (!q)
+        return false;
+
     list_ele_t *newh;
     newh = malloc(sizeof(list_ele_t));
     if (newh == NULL)
@@ -60,10 +63,6 @@ bool q_insert_head(queue_t *q, char *s)
     /* What if either call to malloc returns NULL? */
 
     // connect the link
-    if (!q) {
-        q = q_new();
-        q->tail = newh;
-    }
     newh->next = q->head;
     q->head = newh;
     if (q->tail == NULL)
@@ -94,14 +93,16 @@ bool q_insert_head(queue_t *q, char *s)
 bool q_insert_tail(queue_t *q, char *s)
 {
     /* TODO: You need to write the complete code for this function */
+    if (!q)
+        return false;
+
     list_ele_t *newt = malloc(sizeof(list_ele_t));
     if (newt == NULL)
         return false;
     newt->next = NULL;
 
     // initialize the queue if q is NULL
-    if (!q) {
-        q = q_new();
+    if (q->head == NULL) {
         q->head = newt;
     } else {
         list_ele_t *tail = q->tail;
