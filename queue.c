@@ -25,6 +25,20 @@ void q_free(queue_t *q)
     /* Free queue structure */
     if (q != NULL)
         free(q);
+
+    if (q->head != NULL) {
+        list_ele_t *pos = p->head;
+        list_ele_t *next;
+        while (pos != NULL) {
+            if (pos->value != NULL) {
+                free(pos->value);
+            }
+            next = pos->next;
+            free(pos);
+            pos = next;
+        }
+        free(q);
+    }
 }
 
 /*
