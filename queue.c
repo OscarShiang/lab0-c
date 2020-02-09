@@ -144,8 +144,8 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     q->head = q->head->next;
 
     // copy string into sp if sp is non-NULL
-    if (sp) {
-        strncpy(sp, rm->value, bufsize);
+    if (sp && rm->value) {
+        strncpy(sp, rm->value, bufsize - 1);
         sp[bufsize] = '\0';
     }
 
@@ -180,8 +180,13 @@ int q_size(queue_t *q)
 void q_reverse(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
-    if (!q || !q->head)
+    if (!q) {
         return;
+    }
+
+    if (q->head == NULL) {
+        return;
+    }
 
     list_ele_t *o_head = q->head;
     list_ele_t *o_tail = q->tail;
