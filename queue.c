@@ -58,7 +58,7 @@ bool q_insert_head(queue_t *q, char *s)
     str[str_len] = '\0';
     newh->value = str;
 
-    size++;
+    q->size++;
 
     return true;
 }
