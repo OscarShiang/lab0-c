@@ -146,7 +146,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     // copy string into sp if sp is non-NULL
     if (sp && rm->value) {
         strncpy(sp, rm->value, bufsize - 1);
-        sp[bufsize] = '\0';
+        sp[bufsize - 1] = '\0';
     }
 
     // free the element
@@ -213,5 +213,10 @@ void q_reverse(queue_t *q)
 void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q)
+        return;
+    else if (q->head == NULL)
+        return;
+    else if (q->size <= 1)
+        return;
 }
