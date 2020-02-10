@@ -57,11 +57,19 @@ bool q_insert_head(queue_t *q, char *s)
         return false;
 
     list_ele_t *newh;
+    char *str;
+
+    int len = strlen(s);
+
+    // allocate the memory
     newh = malloc(sizeof(list_ele_t));
     if (newh == NULL)
         return false;
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
+    str = malloc(len + 1);
+    if (str == NULL) {
+        free(newh);
+        return false;
+    }
 
     // connect the link
     newh->next = q->head;
@@ -70,13 +78,8 @@ bool q_insert_head(queue_t *q, char *s)
         q->tail = newh;
 
     // copy the string
-    int str_len = strlen(s);
-    char *str = malloc(str_len + 1);
-    if (str == NULL)
-        return false;
-
-    strncpy(str, s, str_len);
-    str[str_len] = '\0';
+    strncpy(str, s, len);
+    str[len] = '\0';
     newh->value = str;
 
     q->size++;
