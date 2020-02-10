@@ -307,16 +307,38 @@ list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
     if (!l1)
         return l2;
 
+    list_ele_t *curr, *head;
+
     if (strnatcmp(l1->value, l2->value) < 0) {
-        l1->next = merge(l1->next, l2);
-        return l1;
+        head = l1;
+        l1 = l1->next;
     } else {
-        l2->next = merge(l1, l2->next);
-        return l2;
+        head = l2;
+        l2 = l2->next;
     }
+
+    curr = head;
+
+    while (l1 && l2) {
+        if (strnatcmp(l1->value, l2->value) < 0) {
+            curr->next = l1;
+            l1 = l1->next;
+        } else {
+            curr->next = l2;
+            l2 = l2->next;
+        }
+        curr = curr->next;
+    }
+
+    if (l1)
+        curr->next = l1;
+    if (l2)
+        curr->next = l2;
+
+    return head;
 }
 
-list_ele_t *mergeSortList(list_ele_t *head)
+list_ele_t *mergeSort(list_ele_t *head)
 {
     if (!head || !head->next)
         return head;
@@ -332,8 +354,8 @@ list_ele_t *mergeSortList(list_ele_t *head)
     slow->next = NULL;
 
     // sort each list
-    list_ele_t *l1 = mergeSortList(head);
-    list_ele_t *l2 = mergeSortList(fast);
+    list_ele_t *l1 = mergeSort(head);
+    list_ele_t *l2 = mergeSort(fast);
 
     // merge sorted l1 and l2
     return merge(l1, l2);
@@ -349,7 +371,7 @@ void q_sort(queue_t *q)
     else if (q->size <= 1)
         return;
 
-    q->head = mergeSortList(q->head);
+    q->head = mergeSort(q->head);
 
     list_ele_t *tail = q->head;
     while (tail->next)
