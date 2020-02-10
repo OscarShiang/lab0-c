@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -210,6 +211,124 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
+int compare_right(char const *a, char const *b)
+{
+    int bias = 0;
+
+    for (;; a++, b++) {
+        if (!isdigit(*a) && !isdigit(*b))
+            return bias;
+        if (!isdigit(*a))
+            return -1;
+        if (!isdigit(*b))
+            return 1;
+
+        if (*a < *b) {
+            if (!bias)
+                bias = -1;
+        } else if (*a > *b) {
+            if (!bias)
+                bias = 1;
+        } else if (!*a && !*b)
+            return bias;
+    }
+    return 0;
+}
+
+int compare_left(char const *a, char const *b)
+{
+    for (;; a++, b++) {
+        if (!isdigit(*a) && !isdigit(*b))
+            return 0;
+        if (!isdigit(*a))
+            return -1;
+        if (!isdigit(*b))
+            return 1;
+        if (*a < *b)
+            return -1;
+        if (*a > *b)
+            return 1;
+    }
+    return 0;
+}
+
+int strnatcmp(char const *a, char const *b)
+{
+    int ai, bi;
+    int fractional, result;
+
+    ai = bi = 0;
+    while (1) {
+        while (isspace(a[ai]))
+            ++ai;
+
+        while (isspace(b[bi]))
+            ++bi;
+
+        if (isdigit(a[ai]) && isdigit(b[bi])) {
+            fractional = (a[ai] == '0' || b[bi] == '0');
+
+            if (fractional) {
+                if ((result = compare_left(a + ai, b + bi)) != 0)
+                    return result;
+            } else {
+                if ((result = compare_right(a + ai, b + bi)) != 0)
+                    return result;
+            }
+        }
+
+        if (!a[ai] && !b[bi])
+            return 0;
+
+        if (a[ai] < b[bi])
+            return -1;
+        if (a[ai] > b[bi])
+            return 1;
+
+        ++ai;
+        ++bi;
+    }
+}
+
+list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
+{
+    if (!l2)
+        return l1;
+    if (!l1)
+        return l2;
+
+    if (strnatcmp(l1->value, l2->value) < 0) {
+        l1->next = merge(l1->next, l2);
+        return l1;
+    } else {
+        l2->next = merge(l1, l2->next);
+        return l2;
+    }
+}
+
+list_ele_t *mergeSortList(list_ele_t *head)
+{
+    if (!head || !head->next)
+        return head;
+
+    list_ele_t *fast = head->next;
+    list_ele_t *slow = head;
+
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = NULL;
+
+    // sort each list
+    list_ele_t *l1 = mergeSortList(head);
+    list_ele_t *l2 = mergeSortList(fast);
+
+    // merge sorted l1 and l2
+    return merge(l1, l2);
+}
+
 void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
@@ -219,4 +338,6 @@ void q_sort(queue_t *q)
         return;
     else if (q->size <= 1)
         return;
+
+    q->head = mergeSortList(q->head);
 }
