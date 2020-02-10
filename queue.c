@@ -100,12 +100,24 @@ bool q_insert_tail(queue_t *q, char *s)
     if (!q)
         return false;
 
-    list_ele_t *newt = malloc(sizeof(list_ele_t));
+    list_ele_t *newt;
+    char *str;
+    int str_len = strlen(s);
+
+    // alocate memory
+    newt = malloc(sizeof(list_ele_t));
     if (newt == NULL)
         return false;
+    str = malloc(str_len + 1);
+
+    if (str == NULL) {
+        free(newt);
+        return false;
+    }
+
+    // connect the list
     newt->next = NULL;
 
-    // initialize the queue if q is NULL
     if (q->head == NULL) {
         q->head = newt;
     } else {
@@ -115,11 +127,6 @@ bool q_insert_tail(queue_t *q, char *s)
     q->tail = newt;
 
     // cpoy the string
-    int str_len = strlen(s);
-    char *str = malloc(str_len + 1);
-    if (str == NULL)
-        return false;
-
     strncpy(str, s, str_len);
     str[str_len] = '\0';
 
@@ -343,4 +350,9 @@ void q_sort(queue_t *q)
         return;
 
     q->head = mergeSortList(q->head);
+
+    list_ele_t *tail = q->head;
+    while (tail->next)
+        tail = tail->next;
+    q->tail = tail;
 }
