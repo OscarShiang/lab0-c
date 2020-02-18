@@ -96,7 +96,6 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
     if (!q)
         return false;
 
@@ -146,7 +145,6 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
     if (!q || !q->head)
         return false;
 
@@ -173,7 +171,6 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
  */
 int q_size(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
     if (q == NULL || q->head == NULL)
         return 0;
@@ -190,7 +187,6 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
     if (!q) {
         return;
     }
@@ -309,7 +305,7 @@ list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
 
     list_ele_t *curr, *head;
 
-    if (strnatcmp(l1->value, l2->value) < 0) {
+    if (strcmp(l1->value, l2->value) < 0) {
         head = l1;
         l1 = l1->next;
     } else {
@@ -363,7 +359,6 @@ list_ele_t *mergeSort(list_ele_t *head)
 
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
     if (!q)
         return;
     else if (q->head == NULL)
