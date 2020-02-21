@@ -26,14 +26,14 @@ queue_t *q_new()
 void q_free(queue_t *q)
 {
     /* Free queue structure */
-    if (q == NULL)
+    if (!q)
         return;
 
-    if (q->head != NULL) {
+    if (q->head) {
         list_ele_t *pos = q->head;
         list_ele_t *next;
-        while (pos != NULL) {
-            if (pos->value != NULL) {
+        while (pos) {
+            if (pos->value) {
                 free(pos->value);
             }
             next = pos->next;
@@ -63,10 +63,10 @@ bool q_insert_head(queue_t *q, char *s)
 
     // allocate the memory
     newh = malloc(sizeof(list_ele_t));
-    if (newh == NULL)
+    if (!newh)
         return false;
     str = malloc(len + 1);
-    if (str == NULL) {
+    if (!str) {
         free(newh);
         return false;
     }
@@ -74,7 +74,7 @@ bool q_insert_head(queue_t *q, char *s)
     // connect the link
     newh->next = q->head;
     q->head = newh;
-    if (q->tail == NULL)
+    if (!q->tail)
         q->tail = newh;
 
     // copy the string
@@ -105,11 +105,11 @@ bool q_insert_tail(queue_t *q, char *s)
 
     // alocate memory
     newt = malloc(sizeof(list_ele_t));
-    if (newt == NULL)
+    if (!newt)
         return false;
     str = malloc(str_len + 1);
 
-    if (str == NULL) {
+    if (!str) {
         free(newt);
         return false;
     }
@@ -117,9 +117,9 @@ bool q_insert_tail(queue_t *q, char *s)
     // connect the list
     newt->next = NULL;
 
-    if (q->head == NULL) {
+    if (!q->head)
         q->head = newt;
-    } else {
+    else {
         list_ele_t *tail = q->tail;
         tail->next = newt;
     }
@@ -172,7 +172,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 int q_size(queue_t *q)
 {
     /* Remember: It should operate in O(1) time */
-    if (q == NULL || q->head == NULL)
+    if (!q || !q->head)
         return 0;
     else
         return q->size;
@@ -187,13 +187,11 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    if (!q) {
+    if (!q)
         return;
-    }
 
-    if (q->head == NULL) {
+    if (!q->head)
         return;
-    }
 
     list_ele_t *o_head = q->head;
     list_ele_t *o_tail = q->tail;
@@ -201,7 +199,7 @@ void q_reverse(queue_t *q)
     list_ele_t *prev = q->head;
     list_ele_t *next, *pos = q->head->next;
     q->head->next = NULL;
-    while (pos != NULL) {
+    while (pos) {
         next = pos->next;
         pos->next = prev;
         prev = pos;
