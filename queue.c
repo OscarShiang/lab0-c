@@ -6,6 +6,8 @@
 #include "harness.h"
 #include "queue.h"
 
+#include "natsort/strnatcmp.h"
+
 /*
  * Create empty queue.
  * Return NULL if could not allocate space.
@@ -215,85 +217,6 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-int compare_right(char const *a, char const *b)
-{
-    int bias = 0;
-
-    for (;; a++, b++) {
-        if (!isdigit(*a) && !isdigit(*b))
-            return bias;
-        if (!isdigit(*a))
-            return -1;
-        if (!isdigit(*b))
-            return 1;
-
-        if (*a < *b) {
-            if (!bias)
-                bias = -1;
-        } else if (*a > *b) {
-            if (!bias)
-                bias = 1;
-        } else if (!*a && !*b)
-            return bias;
-    }
-    return 0;
-}
-
-int compare_left(char const *a, char const *b)
-{
-    for (;; a++, b++) {
-        if (!isdigit(*a) && !isdigit(*b))
-            return 0;
-        if (!isdigit(*a))
-            return -1;
-        if (!isdigit(*b))
-            return 1;
-        if (*a < *b)
-            return -1;
-        if (*a > *b)
-            return 1;
-    }
-    return 0;
-}
-
-int strnatcmp(char const *a, char const *b)
-{
-    int ai, bi;
-    int fractional, result;
-
-    ai = bi = 0;
-    while (1) {
-        while (isspace(a[ai]))
-            ++ai;
-
-        while (isspace(b[bi]))
-            ++bi;
-
-        if (isdigit(a[ai]) && isdigit(b[bi])) {
-            fractional = (a[ai] == '0' || b[bi] == '0');
-
-            if (fractional) {
-                if ((result = compare_left(a + ai, b + bi)) != 0)
-                    return result;
-            } else {
-                if ((result = compare_right(a + ai, b + bi)) != 0)
-                    return result;
-            }
-        }
-
-        if (!a[ai] && !b[bi])
-            return 0;
-
-        if (a[ai] < b[bi])
-            return -1;
-        if (a[ai] > b[bi])
-            return 1;
-
-        ++ai;
-        ++bi;
-    }
-}
-
 list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
 {
     if (!l2)
