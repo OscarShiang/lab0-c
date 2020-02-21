@@ -226,7 +226,7 @@ list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
 
     list_ele_t *curr, *head;
 
-    if (strcmp(l1->value, l2->value) < 0) {
+    if (strnatcmp(l1->value, l2->value) < 0) {
         head = l1;
         l1 = l1->next;
     } else {
