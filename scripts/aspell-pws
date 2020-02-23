@@ -121,3 +121,4 @@ signal
 srand
 sscanf
 macOS
+linenoise

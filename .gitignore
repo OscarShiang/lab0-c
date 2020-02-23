@@ -1,4 +1,5 @@
 qtest
+history.txt
 *.o
 *.o.d
 *.dSYM

@@ -14,7 +14,12 @@
 #include <unistd.h>
 
 #include "console.h"
+#include "linenoise/linenoise.h"
 #include "report.h"
+
+/* test component */
+void printStr(char *);
+void printStrLen(char *, int);
 
 /* Some global values */
 bool simulation = false;
@@ -60,6 +65,8 @@ static bool echo = 0;
 static bool quit_flag = false;
 static char *prompt = "cmd> ";
 
+static char *history = "history.txt";
+
 /* Optional function to call as part of exit process */
 /* Maximum number of quit functions */
 
@@ -81,6 +88,36 @@ static bool push_file(char *fname);
 static void pop_file();
 
 static bool interpret_cmda(int argc, char *argv[]);
+
+/* completion of the commands */
+void cmd_completion(const char *buf, linenoiseCompletions *lc)
+{
+    char cmd[11];
+    strncpy(cmd, "help", 10);
+
+    switch (buf[0]) {
+    case 'h':
+        linenoiseAddCompletion(lc, "help");
+        break;
+    case 's':
+        linenoiseAddCompletion(lc, "show");
+        break;
+    case 'o':
+        linenoiseAddCompletion(lc, "option");
+        break;
+    case 'q':
+        linenoiseAddCompletion(lc, "quit");
+        break;
+    case 'i':
+        linenoiseAddCompletion(lc, "it");
+        linenoiseAddCompletion(lc, "ih");
+        break;
+    case 'r':
+        linenoiseAddCompletion(lc, "rh");
+        linenoiseAddCompletion(lc, "rhq");
+        break;
+    }
+}
 
 /* Initialize interpreter */
 void init_cmd()
@@ -108,6 +145,10 @@ void init_cmd()
     init_in();
     init_time(&last_time);
     first_time = last_time;
+
+    // setting up linenoise module
+    linenoiseSetCompletionCallback(cmd_completion);
+    linenoiseHistoryLoad(history);
 }
 
 /* Add a new command */
@@ -157,6 +198,7 @@ static char **parse_args(char *line, int *argcp)
      * Must first determine how many arguments there are.
      * Replace all white space with null characters
      */
+
     size_t len = strlen(line);
     /* First copy into buffer with each substring null-terminated */
     char *buf = malloc_or_fail(len + 1, "parse_args");
@@ -164,10 +206,12 @@ static char **parse_args(char *line, int *argcp)
     char *dst = buf;
     bool skipping = true;
 
+    memset(buf, 0, len + 1);  // clear the buffer
+
     int c;
     int argc = 0;
     while ((c = *src++) != '\0') {
-        if (isspace(c)) {
+        if (isspace(c)) {  // test
             if (!skipping) {
                 /* Hit end of word */
                 *dst++ = '\0';
@@ -182,7 +226,8 @@ static char **parse_args(char *line, int *argcp)
             *dst++ = c;
         }
     }
-
+    printf("pre-process string: ");
+    printStrLen(buf, len + 1);
     /* Now assemble into array of strings */
     char **argv = calloc_or_fail(argc, sizeof(char *), "parse_args");
     src = buf;
@@ -542,6 +587,39 @@ static bool read_ready()
     return false;
 }
 
+void printStr(char *str)
+{
+    int len = strlen(str);
+    for (int i = 0; i <= len; ++i) {
+        if (isalnum(str[i]))
+            printf("%c", str[i]);
+        else if (str[i] == '\0')
+            printf("\\0");
+        else if (str[i] == '\n')
+            printf("\\n");
+        else
+            printf(" ");
+    }
+    printf("\n");
+}
+
+void printStrLen(char *str, int len)
+{
+    for (int i = 0; i <= len; i++) {
+        if (isalnum(str[i]))
+            printf("%c", str[i]);
+        else if (str[i] == '\0')
+            printf("\\0");
+        else if (str[i] == '\n')
+            printf("\\n");
+        else if (isspace(str[i]))
+            printf("<space>");
+        else
+            printf(" ");
+    }
+    printf("\n");
+}
+
 static bool cmd_done()
 {
     return !buf_stack || quit_flag;
@@ -626,7 +704,19 @@ bool run_console(char *infile_name)
         return false;
     }
 
-    while (!cmd_done())
-        cmd_select(0, NULL, NULL, NULL, NULL);
+    if (infile_name) {
+        while (!cmd_done())
+            cmd_select(0, NULL, NULL, NULL, NULL);
+    } else {
+        char *line;
+        while ((line = linenoise(prompt))) {
+            printStr(line);
+            interpret_cmd(line);
+            linenoiseHistoryAdd(line);
+            linenoiseHistorySave(history);
+            free(line);
+        }
+    }
+
     return err_cnt == 0;
 }
