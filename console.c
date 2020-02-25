@@ -700,10 +700,11 @@ bool run_console(char *infile_name)
             run_source = false;
             continue;
         }
-        printStr(line);
-        interpret_cmd(line);
-        linenoiseHistoryAdd(line);
-        linenoiseHistorySave(history);
+        if (run_source) {
+            interpret_cmd(line);
+            linenoiseHistoryAdd(line);
+            linenoiseHistorySave(history);
+        }
         free(line);
     }
 
