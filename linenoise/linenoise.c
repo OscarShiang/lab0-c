@@ -172,7 +172,7 @@ enum KEY_ACTION {
     BACKSPACE = 127 /* Backspace */
 };
 
-static void linenoiseAtExit(void);
+// static void linenoiseAtExit(void);
 int linenoiseHistoryAdd(const char *line);
 static void refreshLine(struct linenoiseState *l);
 void linenoiseSetDescriptor(int fd, FILE *fp);
@@ -1160,6 +1160,7 @@ char *linenoise(const char *prompt)
         fflush(stdout);
         if (fgets(buf, LINENOISE_MAX_LINE, readf) == NULL) {
             fclose(readf);
+            readf = NULL;
             readfds = STDIN_FILENO;
             printf("file eof\n");
             return NULL;
@@ -1200,14 +1201,17 @@ static void freeHistory(void)
         for (j = 0; j < history_len; j++)
             free(history[j]);
         free(history);
+        printf("free history\n");
     }
 }
 
 /* At exit we'll try to fix the terminal to the initial conditions. */
-static void linenoiseAtExit(void)
+void linenoiseAtExit(void)
 {
     disableRawMode(STDIN_FILENO);
     freeHistory();
+    if (readf)
+        fclose(readf);
 }
 
 /* This is the API call to add a new entry in the linenoise history.

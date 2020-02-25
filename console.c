@@ -499,7 +499,8 @@ static bool push_file(char *fname)
     buf_stack = rnew;
     */
 
-    linenoiseSetDescriptor(fd, fopen(fname, "r"));
+    if (fname)
+        linenoiseSetDescriptor(fd, fopen(fname, "r"));
 
     return true;
 }
@@ -710,6 +711,7 @@ bool run_console(char *infile_name)
     while (!cmd_done())
         cmd_select(0, NULL, NULL, NULL, NULL);
     */
+    linenoiseAtExit();
 
     return err_cnt == 0;
 }
