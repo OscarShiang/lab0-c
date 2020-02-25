@@ -19,7 +19,6 @@
 
 /* test component */
 void printStr(char *);
-void printStrLen(char *, int);
 
 /* Some global values */
 bool simulation = false;
@@ -51,6 +50,7 @@ struct RIO_ELE {
     rio_ptr prev;          /* Next element in stack */
 };
 
+
 static rio_ptr buf_stack;
 static char linebuf[RIO_BUFSIZE];
 
@@ -66,6 +66,7 @@ static bool quit_flag = false;
 static char *prompt = "cmd> ";
 
 static char *history = "history.txt";
+static bool run_source = false;
 
 /* Optional function to call as part of exit process */
 /* Maximum number of quit functions */
@@ -226,8 +227,6 @@ static char **parse_args(char *line, int *argcp)
             *dst++ = c;
         }
     }
-    printf("pre-process string: ");
-    printStrLen(buf, len + 1);
     /* Now assemble into array of strings */
     char **argv = calloc_or_fail(argc, sizeof(char *), "parse_args");
     src = buf;
@@ -440,6 +439,7 @@ static bool do_source_cmd(int argc, char *argv[])
         return false;
     }
 
+    run_source = true;
     return true;
 }
 
@@ -490,12 +490,16 @@ static bool push_file(char *fname)
     if (fd > fd_max)
         fd_max = fd;
 
+    /* original version
     rio_ptr rnew = malloc_or_fail(sizeof(rio_t), "push_file");
     rnew->fd = fd;
     rnew->cnt = 0;
     rnew->bufptr = rnew->buf;
     rnew->prev = buf_stack;
     buf_stack = rnew;
+    */
+
+    linenoiseSetDescriptor(fd, fopen(fname, "r"));
 
     return true;
 }
@@ -603,23 +607,6 @@ void printStr(char *str)
     printf("\n");
 }
 
-void printStrLen(char *str, int len)
-{
-    for (int i = 0; i <= len; i++) {
-        if (isalnum(str[i]))
-            printf("%c", str[i]);
-        else if (str[i] == '\0')
-            printf("\\0");
-        else if (str[i] == '\n')
-            printf("\\n");
-        else if (isspace(str[i]))
-            printf("<space>");
-        else
-            printf(" ");
-    }
-    printf("\n");
-}
-
 static bool cmd_done()
 {
     return !buf_stack || quit_flag;
@@ -704,19 +691,25 @@ bool run_console(char *infile_name)
         return false;
     }
 
-    if (infile_name) {
-        while (!cmd_done())
-            cmd_select(0, NULL, NULL, NULL, NULL);
-    } else {
-        char *line;
-        while ((line = linenoise(prompt))) {
-            printStr(line);
-            interpret_cmd(line);
-            linenoiseHistoryAdd(line);
-            linenoiseHistorySave(history);
-            free(line);
+
+    printf("input buffer\n");
+    char *line = NULL;
+    while ((!quit_flag && (line = linenoise(prompt))) || run_source) {
+        if (run_source && !line) {
+            run_source = false;
+            continue;
         }
+        printStr(line);
+        interpret_cmd(line);
+        linenoiseHistoryAdd(line);
+        linenoiseHistorySave(history);
+        free(line);
     }
+
+    /*
+    while (!cmd_done())
+        cmd_select(0, NULL, NULL, NULL, NULL);
+    */
 
     return err_cnt == 0;
 }

@@ -129,6 +129,8 @@ static int atexit_registered = 0; /* Register atexit just 1 time. */
 static int history_max_len = LINENOISE_DEFAULT_HISTORY_MAX_LEN;
 static int history_len = 0;
 static char **history = NULL;
+static int readfds;
+static FILE *readf;
 
 /* The linenoiseState structure represents the state during line editing.
  * We pass this state to functions implementing specific editing
@@ -173,6 +175,7 @@ enum KEY_ACTION {
 static void linenoiseAtExit(void);
 int linenoiseHistoryAdd(const char *line);
 static void refreshLine(struct linenoiseState *l);
+void linenoiseSetDescriptor(int fd, FILE *fp);
 
 /* Debugging macro. */
 #if 0
@@ -195,6 +198,12 @@ FILE *lndebug_fp = NULL;
 #endif
 
 /* ======================= Low level terminal handling ====================== */
+
+void linenoiseSetDescriptor(int fd, FILE *fp)
+{
+    readfds = fd;
+    readf = fp;
+}
 
 /* Set if to use or not the multi line mode. */
 void linenoiseSetMultiLine(int ml)
@@ -1064,10 +1073,16 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt)
         return -1;
     }
 
+    /* original version
     if (enableRawMode(STDIN_FILENO) == -1)
         return -1;
     count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt);
     disableRawMode(STDIN_FILENO);
+    */
+    if (enableRawMode(readfds) == -1)
+        return -1;
+    count = linenoiseEdit(readfds, STDOUT_FILENO, buf, buflen, prompt);
+    disableRawMode(readfds);
     printf("\n");
     return count;
 }
@@ -1128,7 +1143,7 @@ char *linenoise(const char *prompt)
     } else if (isUnsupportedTerm()) {
         size_t len;
 
-        printf("%s", prompt);
+        printf("unsupported %s", prompt);
         fflush(stdout);
         if (fgets(buf, LINENOISE_MAX_LINE, stdin) == NULL)
             return NULL;
@@ -1138,7 +1153,25 @@ char *linenoise(const char *prompt)
             buf[len] = '\0';
         }
         return strdup(buf);
+    } else if (readfds != STDIN_FILENO) {
+        size_t len;
+
+        printf("file %s", prompt);  // test
+        fflush(stdout);
+        if (fgets(buf, LINENOISE_MAX_LINE, readf) == NULL) {
+            fclose(readf);
+            readfds = STDIN_FILENO;
+            printf("file eof\n");
+            return NULL;
+        }
+        len = strlen(buf);
+        while (len && (buf[len - 1] == '\n' || buf[len - 1] == '\r')) {
+            len--;
+            buf[len] = '\0';
+        }
+        return strdup(buf);
     } else {
+        printf("return to normal execute\n");
         count = linenoiseRaw(buf, LINENOISE_MAX_LINE, prompt);
         if (count == -1)
             return NULL;

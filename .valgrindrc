@@ -1,4 +1,4 @@
 --quiet
---memcheck:leak-check=full
 --show-leak-kinds=all
+--memcheck:leak-check=full
 --error-exitcode=1

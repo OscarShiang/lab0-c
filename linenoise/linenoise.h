@@ -44,6 +44,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include <stdio.h>
 
 typedef struct linenoiseCompletions {
     size_t len;
@@ -67,6 +68,8 @@ int linenoiseHistoryLoad(const char *filename);
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
 void linenoisePrintKeyCodes(void);
+
+void linenoiseSetDescriptor(int fd, FILE *fp);
 
 #ifdef __cplusplus
 }
