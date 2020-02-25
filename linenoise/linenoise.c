@@ -1162,7 +1162,6 @@ char *linenoise(const char *prompt)
             fclose(readf);
             readf = NULL;
             readfds = STDIN_FILENO;
-            printf("file eof\n");
             return NULL;
         }
         len = strlen(buf);
@@ -1172,7 +1171,6 @@ char *linenoise(const char *prompt)
         }
         return strdup(buf);
     } else {
-        printf("return to normal execute\n");
         count = linenoiseRaw(buf, LINENOISE_MAX_LINE, prompt);
         if (count == -1)
             return NULL;
@@ -1201,7 +1199,6 @@ static void freeHistory(void)
         for (j = 0; j < history_len; j++)
             free(history[j]);
         free(history);
-        printf("free history\n");
     }
 }
 
