@@ -67,6 +67,7 @@ static char *prompt = "cmd> ";
 
 static char *history = "history.txt";
 static bool run_source = false;
+static bool infile = false;
 
 /* Optional function to call as part of exit process */
 /* Maximum number of quit functions */
@@ -499,8 +500,10 @@ static bool push_file(char *fname)
     buf_stack = rnew;
     */
 
-    if (fname)
+    if (fname) {
         linenoiseSetDescriptor(fd, fopen(fname, "r"));
+        infile = true;
+    }
 
     return true;
 }
@@ -692,14 +695,16 @@ bool run_console(char *infile_name)
         return false;
     }
 
-
-    printf("input buffer\n");
     char *line = NULL;
     while ((!quit_flag && (line = linenoise(prompt))) || run_source) {
         if (run_source && !line) {
             run_source = false;
+            if (infile)
+                infile = false;
             continue;
         }
+        if (infile)
+            printf("%s\n", line);
         if (!run_source) {
             interpret_cmd(line);
             linenoiseHistoryAdd(line);
@@ -707,11 +712,6 @@ bool run_console(char *infile_name)
         }
         free(line);
     }
-
-    /*
-    while (!cmd_done())
-        cmd_select(0, NULL, NULL, NULL, NULL);
-    */
     linenoiseAtExit();
 
     return err_cnt == 0;
