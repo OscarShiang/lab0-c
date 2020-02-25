@@ -1156,7 +1156,7 @@ char *linenoise(const char *prompt)
     } else if (readfds != STDIN_FILENO) {
         size_t len;
 
-        printf("%s", prompt);
+        // printf("%s", prompt);
         fflush(stdout);
         if (fgets(buf, LINENOISE_MAX_LINE, readf) == NULL) {
             fclose(readf);

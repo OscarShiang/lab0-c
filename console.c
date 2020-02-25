@@ -696,20 +696,27 @@ bool run_console(char *infile_name)
     }
 
     char *line = NULL;
-    while ((!quit_flag && (line = linenoise(prompt))) || run_source) {
-        if (run_source && !line) {
+    while ((line = linenoise(prompt)) || run_source) {
+        if (quit_flag)
+            break;
+
+        if (run_source && !line && !quit_flag) {
             run_source = false;
             if (infile)
                 infile = false;
             continue;
         }
-        if (infile)
-            printf("%s\n", line);
+        if (echo) {
+            report_noreturn(1, prompt);
+            report_noreturn(1, line);
+            printf("\n");
+        }
         if (!run_source) {
-            interpret_cmd(line);
             linenoiseHistoryAdd(line);
             linenoiseHistorySave(history);
         }
+
+        interpret_cmd(line);
         free(line);
     }
     linenoiseAtExit();
