@@ -691,6 +691,7 @@ bool finish_cmd()
 
 bool run_console(char *infile_name)
 {
+    bool fromfile = (infile_name) ? true : false;
     if (!push_file(infile_name)) {
         report(1, "ERROR: Could not open source file '%s'", infile_name);
         return false;
@@ -709,7 +710,7 @@ bool run_console(char *infile_name)
             report_noreturn(1, line);
             printf("\n");
         }
-        if (!run_source) {
+        if (!run_source && !fromfile) {
             linenoiseHistoryAdd(line);
             linenoiseHistorySave(history);
         }
