@@ -1,5 +1,7 @@
 /* Implementation of simple command-line interface */
 
+#include "console.h"
+
 #include <ctype.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -13,7 +15,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "console.h"
 #include "linenoise/linenoise.h"
 #include "report.h"
 
@@ -697,9 +698,6 @@ bool run_console(char *infile_name)
 
     char *line = NULL;
     while ((line = linenoise(prompt)) || run_source) {
-        if (quit_flag)
-            break;
-
         if (run_source && !line && !quit_flag) {
             run_source = false;
             if (infile)
@@ -718,6 +716,8 @@ bool run_console(char *infile_name)
 
         interpret_cmd(line);
         free(line);
+        if (quit_flag)
+            break;
     }
     linenoiseAtExit();
 
