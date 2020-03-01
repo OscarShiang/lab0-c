@@ -104,6 +104,7 @@
  */
 
 #include "linenoise.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -1199,6 +1200,7 @@ static void freeHistory(void)
         for (j = 0; j < history_len; j++)
             free(history[j]);
         free(history);
+        history = NULL;
     }
 }
 
