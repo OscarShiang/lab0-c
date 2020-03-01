@@ -559,14 +559,14 @@ bool do_sort(int argc, char *argv[])
         for (list_ele_t *e = q->head; e && --cnt; e = e->next) {
             /* Ensure each element in ascending order */
             if (natsort) {
-                if (strcasecmp(e->value, e->next->value) > 0) {
-                    report(1, "ERROR: Not sorted in ascending order");
+                if (strnatcmp(e->value, e->next->value) > 0) {
+                    report(1, "ERROR: Not sorted in natural order");
                     ok = false;
                     break;
                 }
             } else {
-                if (strnatcmp(e->value, e->next->value) > 0) {
-                    report(1, "ERROR: Not sorted in natural order");
+                if (strcasecmp(e->value, e->next->value) > 0) {
+                    report(1, "ERROR: Not sorted in ascending order");
                     ok = false;
                     break;
                 }
