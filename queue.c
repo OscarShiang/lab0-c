@@ -16,6 +16,7 @@ queue_t *q_new()
         return NULL;
 
     q->head = NULL;
+    q->tail = NULL;
     q->size = 0;
     return q;
 }
@@ -48,6 +49,9 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    if (!q)
+        return false;
+
     list_ele_t *newh = malloc(sizeof(list_ele_t));
     if (!newh)
         return false;
@@ -66,6 +70,8 @@ bool q_insert_head(queue_t *q, char *s)
     strncpy(newh->value, s, len);
 
     /* Concatenate the new element */
+    if (!q->tail)
+        q->tail = newh;
     newh->next = q->head;
     q->head = newh;
 
@@ -83,10 +89,35 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
     /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    return false;
+    if (!q)
+        return false;
+
+    list_ele_t *newt = malloc(sizeof(list_ele_t));
+    if (!newt)
+        return false;
+    newt->next = NULL;
+
+    size_t len = strlen(s) + 1;
+    newt->value = malloc(len);
+    if (!newt->value) {
+        free(newt);
+        return false;
+    }
+
+    /* Copy the string */
+    strncpy(newt->value, s, len);
+
+    /* Concatenate */
+    if (!q->head)
+        q->head = newt;
+    else
+        q->tail->next = newt;
+    q->tail = newt;
+
+    q->size++;
+
+    return true;
 }
 
 /*
