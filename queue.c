@@ -24,7 +24,7 @@ queue_t *q_new()
 /* Free all storage used by queue */
 void q_free(queue_t *q)
 {
-    if (!q || !q->head)
+    if (!q)
         return;
 
     /* Free the string inside the elements and the elements */
