@@ -175,8 +175,27 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || !q->head)
+        return;
+
+    /* Store original head and tail */
+    list_ele_t *orig_head = q->head;
+    list_ele_t *orig_tail = q->tail;
+
+    list_ele_t *curr = q->head;
+
+    while (curr != orig_tail) {
+        list_ele_t *next = curr->next;
+        curr->next = q->tail->next;
+        q->tail->next = curr;
+        curr = next;
+    }
+
+    q->head = orig_tail;
+
+    /* Cut off the tail */
+    q->tail = orig_head;
+    q->tail->next = NULL;
 }
 
 /*
@@ -184,8 +203,80 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
+
+static list_ele_t *merge_list(list_ele_t *l1, list_ele_t *l2)
+{
+    if (!l2)
+        return l1;
+    if (!l1)
+        return l2;
+
+    list_ele_t *curr, *head;
+
+    if (strcmp(l1->value, l2->value) < 0) {
+        head = l1;
+        l1 = l1->next;
+    } else {
+        head = l2;
+        l2 = l2->next;
+    }
+
+    curr = head;
+
+    while (l1 && l2) {
+        if (strcmp(l1->value, l2->value) < 0) {
+            curr->next = l1;
+            l1 = l1->next;
+        } else {
+            curr->next = l2;
+            l2 = l2->next;
+        }
+        curr = curr->next;
+    }
+
+    if (l1)
+        curr->next = l1;
+    if (l2)
+        curr->next = l2;
+
+    return head;
+}
+
+static list_ele_t *sort_list(list_ele_t *head)
+{
+    if (!head || !head->next)
+        return head;
+
+    /* Split the list into 2 parts */
+    list_ele_t *fast = head->next;
+    list_ele_t *slow = head;
+
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = NULL;
+
+    /* split each list */
+    list_ele_t *l1 = sort_list(head);
+    list_ele_t *l2 = sort_list(fast);
+
+    /* merge and sort l1 and l2 */
+    return merge_list(l1, l2);
+}
+
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || q->size <= 1)
+        return;
+
+    /* Sort the list */
+    q->head = sort_list(q->head);
+
+    /* Update the new tail */
+    list_ele_t *newt = q->head;
+    while (newt->next)
+        newt = newt->next;
+    q->tail = newt;
 }
