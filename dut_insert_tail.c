@@ -5,6 +5,6 @@
 
 int main(void)
 {
-    test_const(1);
+    test_const(0);
     return 0;
 }

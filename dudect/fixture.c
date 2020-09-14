@@ -197,14 +197,16 @@ bool is_size_const(void)
     return result;
 }
 
-void test_size_const(void)
+void test_const(int mode)
 {
+    assert(mode == 1 || mode == 0);
+
     t = malloc(sizeof(t_ctx));
     // printf("Testing size...(%d/%d)\n\n", cnt, test_tries);
     init_once();
 
     while (true)
-        doit(1);
+        doit(mode);
 
     free(t);
 }

@@ -75,7 +75,13 @@ valgrind: valgrind_existence
 	@echo "Test with specific case by running command:" 
 	@echo "scripts/driver.py -p $(patched_file) --valgrind -t <tid>"
 
+dut: dut_size dut_insert_tail
+
 dut_size: dut_size.c $(DUT_OBJS)
+	$(VECHO) "  LD\t$@\n"
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
+
+dut_insert_tail: dut_insert_tail.c $(DUT_OBJS)
 	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
 
