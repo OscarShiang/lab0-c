@@ -86,7 +86,10 @@ static bool report(void)
     double number_traces_max_t = t->n[0] + t->n[1];
     double max_tau = max_t / sqrt(number_traces_max_t);
 
+#ifndef DUT_TEST
     printf("\033[A\033[2K");
+#endif
+
     printf("meas: %7.2lf M, ", (number_traces_max_t / 1e6));
     if (number_traces_max_t < enough_measurements) {
         printf("not enough measurements (%.0f still to go).\n",
@@ -192,4 +195,16 @@ bool is_size_const(void)
     }
     free(t);
     return result;
+}
+
+void test_size_const(void)
+{
+    t = malloc(sizeof(t_ctx));
+    // printf("Testing size...(%d/%d)\n\n", cnt, test_tries);
+    init_once();
+
+    while (true)
+        doit(1);
+
+    free(t);
 }

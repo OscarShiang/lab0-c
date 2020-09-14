@@ -1,8 +1,11 @@
 CC = gcc
-CFLAGS = -O1 -g -Wall -Werror -Idudect -I.
+CFLAGS = -O1 -g -Wall -Werror -Idudect -I. $(DUT_FLAGS)
 
 GIT_HOOKS := .git/hooks/applied
 DUT_DIR := dudect
+DUT_OBJS := report.o random.o queue.o harness.o dudect/constant.o \
+    dudect/fixture.o dudect/ttest.o
+
 all: $(GIT_HOOKS) qtest
 
 tid := 0
@@ -21,6 +24,10 @@ ifeq ("$(VERBOSE)","1")
 else
     Q := @
     VECHO = @printf
+endif
+
+ifeq ("$(DUT_TEST)","1")
+    DUT_FLAGS := -DDUT_TEST
 endif
 
 # Enable sanitizer(s) or not
@@ -67,6 +74,10 @@ valgrind: valgrind_existence
 	@echo
 	@echo "Test with specific case by running command:" 
 	@echo "scripts/driver.py -p $(patched_file) --valgrind -t <tid>"
+
+dut_size: dut_size.c $(DUT_OBJS)
+	$(VECHO) "  LD\t$@\n"
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
 
 clean:
 	rm -f $(OBJS) $(deps) *~ qtest /tmp/qtest.*

@@ -5,3 +5,5 @@ qtest
 .vscode
 .devcontainer
 core*
+dut_size
+dut_insert_tail
